@@ -2076,6 +2076,40 @@ class Ui_Controller_Main(object):
 
         self.gridLayout_40.addWidget(self.label_3, 0, 0, 1, 1)
 
+        self.pulse_delay_csv_widget = QWidget(self.PulseSettings)
+        self.pulse_delay_csv_widget.setObjectName(u"pulse_delay_csv_widget")
+        self.gridLayout_pulse_delay_csv = QGridLayout(self.pulse_delay_csv_widget)
+        self.gridLayout_pulse_delay_csv.setObjectName(u"gridLayout_pulse_delay_csv")
+        self.pulse_delay_csv_label = QLabel(self.pulse_delay_csv_widget)
+        self.pulse_delay_csv_label.setObjectName(u"pulse_delay_csv_label")
+
+        self.gridLayout_pulse_delay_csv.addWidget(self.pulse_delay_csv_label, 1, 0, 1, 1)
+
+        self.pulse_delay_csv_path = QLineEdit(self.pulse_delay_csv_widget)
+        self.pulse_delay_csv_path.setObjectName(u"pulse_delay_csv_path")
+        self.pulse_delay_csv_path.setReadOnly(True)
+
+        self.gridLayout_pulse_delay_csv.addWidget(self.pulse_delay_csv_path, 1, 1, 1, 1)
+
+        self.pulse_delay_csv_browse = QPushButton(self.pulse_delay_csv_widget)
+        self.pulse_delay_csv_browse.setObjectName(u"pulse_delay_csv_browse")
+        self.pulse_delay_csv_browse.setMinimumSize(QSize(80, 0))
+
+        self.gridLayout_pulse_delay_csv.addWidget(self.pulse_delay_csv_browse, 1, 2, 1, 1)
+
+        self.pulse_delay_csv_clear = QPushButton(self.pulse_delay_csv_widget)
+        self.pulse_delay_csv_clear.setObjectName(u"pulse_delay_csv_clear")
+        self.pulse_delay_csv_clear.setMinimumSize(QSize(80, 0))
+
+        self.gridLayout_pulse_delay_csv.addWidget(self.pulse_delay_csv_clear, 1, 3, 1, 1)
+
+        self.pulse_delay_csv_spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_pulse_delay_csv.addItem(self.pulse_delay_csv_spacer, 1, 4, 1, 1)
+
+
+        self.gridLayout_40.addWidget(self.pulse_delay_csv_widget, 1, 0, 1, 7)
+
 
         self.gridLayout_39.addWidget(self.PulseSettings, 1, 0, 1, 1)
 
@@ -2123,7 +2157,7 @@ class Ui_Controller_Main(object):
 
         self.gridLayout_65.addWidget(self.doubleSpinBox_24, 0, 1, 1, 1)
 
-        self.horizontalSpacer_6 = QSpacerItem(30, 20, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_6 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_65.addItem(self.horizontalSpacer_6, 0, 3, 1, 1)
 
@@ -2133,7 +2167,38 @@ class Ui_Controller_Main(object):
         self.gridLayout_65.addWidget(self.label_103, 0, 2, 1, 1)
 
 
-        self.gridLayout_64.addWidget(self.widget_25, 1, 3, 2, 1)
+        self.gridLayout_64.addWidget(self.widget_25, 1, 2, 2, 1)
+
+        self.jitter_quantize_widget = QWidget(self.jitter_widget_3)
+        self.jitter_quantize_widget.setObjectName(u"jitter_quantize_widget")
+        self.gridLayout_jitter_quantize = QGridLayout(self.jitter_quantize_widget)
+        self.gridLayout_jitter_quantize.setObjectName(u"gridLayout_jitter_quantize")
+        self.jitter_quantize_label = QLabel(self.jitter_quantize_widget)
+        self.jitter_quantize_label.setObjectName(u"jitter_quantize_label")
+        sizePolicy10.setHeightForWidth(self.jitter_quantize_label.sizePolicy().hasHeightForWidth())
+        self.jitter_quantize_label.setSizePolicy(sizePolicy10)
+        self.jitter_quantize_label.setMinimumSize(QSize(0, 15))
+
+        self.gridLayout_jitter_quantize.addWidget(self.jitter_quantize_label, 0, 0, 1, 1)
+
+        self.jitter_quantize_dropdown = QComboBox(self.jitter_quantize_widget)
+        self.jitter_quantize_dropdown.addItem("")
+        self.jitter_quantize_dropdown.addItem("")
+        self.jitter_quantize_dropdown.addItem("")
+        self.jitter_quantize_dropdown.addItem("")
+        self.jitter_quantize_dropdown.addItem("")
+        self.jitter_quantize_dropdown.setObjectName(u"jitter_quantize_dropdown")
+        self.jitter_quantize_dropdown.setCurrentIndex(4)
+
+        self.gridLayout_jitter_quantize.addWidget(self.jitter_quantize_dropdown, 0, 1, 1, 1)
+
+        self.jitter_quantize_units = QLabel(self.jitter_quantize_widget)
+        self.jitter_quantize_units.setObjectName(u"jitter_quantize_units")
+
+        self.gridLayout_jitter_quantize.addWidget(self.jitter_quantize_units, 0, 2, 1, 1)
+
+
+        self.gridLayout_64.addWidget(self.jitter_quantize_widget, 1, 3, 2, 1)
 
         self.Jitter_4 = QWidget(self.jitter_widget_3)
         self.Jitter_4.setObjectName(u"Jitter_4")
@@ -2998,9 +3063,19 @@ class Ui_Controller_Main(object):
         self.label_90.setText(QCoreApplication.translate("Controller_Main", u"Milliseconds", None))
         self.label_29.setText(QCoreApplication.translate("Controller_Main", u"Interpulse Delay", None))
         self.label_3.setText(QCoreApplication.translate("Controller_Main", u"Pulses per Stim", None))
+        self.pulse_delay_csv_label.setText(QCoreApplication.translate("Controller_Main", u"Load Pulse Delay CSV", None))
+        self.pulse_delay_csv_browse.setText(QCoreApplication.translate("Controller_Main", u"Browse...", None))
+        self.pulse_delay_csv_clear.setText(QCoreApplication.translate("Controller_Main", u"Clear", None))
         self.StimSettings.setTitle(QCoreApplication.translate("Controller_Main", u"Stim Settings", None))
         self.label_102.setText(QCoreApplication.translate("Controller_Main", u"Jitter Rate (+/-)", None))
         self.label_103.setText(QCoreApplication.translate("Controller_Main", u"Seconds", None))
+        self.jitter_quantize_label.setText(QCoreApplication.translate("Controller_Main", u"Jitter Quantize", None))
+        self.jitter_quantize_dropdown.setItemText(0, QCoreApplication.translate("Controller_Main", u"1", None))
+        self.jitter_quantize_dropdown.setItemText(1, QCoreApplication.translate("Controller_Main", u"0.1", None))
+        self.jitter_quantize_dropdown.setItemText(2, QCoreApplication.translate("Controller_Main", u"0.01", None))
+        self.jitter_quantize_dropdown.setItemText(3, QCoreApplication.translate("Controller_Main", u"0.001", None))
+        self.jitter_quantize_dropdown.setItemText(4, QCoreApplication.translate("Controller_Main", u"0.0001", None))
+        self.jitter_quantize_units.setText(QCoreApplication.translate("Controller_Main", u"Seconds", None))
         self.jitter_on_3.setText(QCoreApplication.translate("Controller_Main", u"On", None))
         self.jitter_label_3.setText(QCoreApplication.translate("Controller_Main", u"Jitter", None))
         self.jitter_off_3.setText(QCoreApplication.translate("Controller_Main", u"Off", None))

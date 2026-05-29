@@ -3095,6 +3095,65 @@
                        </property>
                       </widget>
                      </item>
+                     <item row="1" column="0" colspan="7">
+                      <widget class="QWidget" name="pulse_delay_csv_widget" native="true">
+                       <layout class="QGridLayout" name="gridLayout_pulse_delay_csv">
+                        <item row="1" column="0">
+                         <widget class="QLabel" name="pulse_delay_csv_label">
+                          <property name="text">
+                           <string>Load Pulse Delay CSV</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="1">
+                         <widget class="QLineEdit" name="pulse_delay_csv_path">
+                          <property name="readOnly">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="2">
+                         <widget class="QPushButton" name="pulse_delay_csv_browse">
+                          <property name="minimumSize">
+                           <size>
+                            <width>80</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Browse...</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="3">
+                         <widget class="QPushButton" name="pulse_delay_csv_clear">
+                          <property name="minimumSize">
+                           <size>
+                            <width>80</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Clear</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="4">
+                         <spacer name="pulse_delay_csv_spacer">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                   </item>
@@ -3150,7 +3209,7 @@
                            </size>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_64">
-                           <item row="1" column="3" rowspan="2">
+                           <item row="1" column="2" rowspan="2">
                             <widget class="QWidget" name="widget_25" native="true">
                              <layout class="QGridLayout" name="gridLayout_65">
                               <item row="0" column="0">
@@ -3187,11 +3246,11 @@
                                  <enum>Qt::Orientation::Horizontal</enum>
                                 </property>
                                 <property name="sizeType">
-                                 <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+                                 <enum>QSizePolicy::Policy::Fixed</enum>
                                 </property>
                                 <property name="sizeHint" stdset="0">
                                  <size>
-                                  <width>30</width>
+                                  <width>10</width>
                                   <height>20</height>
                                  </size>
                                 </property>
@@ -3199,6 +3258,70 @@
                               </item>
                               <item row="0" column="2">
                                <widget class="QLabel" name="label_103">
+                                <property name="text">
+                                 <string>Seconds</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item row="1" column="3" rowspan="2">
+                            <widget class="QWidget" name="jitter_quantize_widget" native="true">
+                             <layout class="QGridLayout" name="gridLayout_jitter_quantize">
+                              <item row="0" column="0">
+                               <widget class="QLabel" name="jitter_quantize_label">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>15</height>
+                                 </size>
+                                </property>
+                                <property name="text">
+                                 <string>Jitter Quantize</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="1">
+                               <widget class="QComboBox" name="jitter_quantize_dropdown">
+                                <property name="currentIndex">
+                                 <number>4</number>
+                                </property>
+                                <item>
+                                 <property name="text">
+                                  <string>1</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>0.1</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>0.01</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>0.001</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>0.0001</string>
+                                 </property>
+                                </item>
+                               </widget>
+                              </item>
+                              <item row="0" column="2">
+                               <widget class="QLabel" name="jitter_quantize_units">
                                 <property name="text">
                                  <string>Seconds</string>
                                 </property>

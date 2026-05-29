@@ -174,6 +174,8 @@ def burst_mode(
     num_stims=10,
     jitter=False,
     jitter_rate=0,        # seconds
+    jitter_quantize=0.0001,
+    interpulse_delay_sequence=None,
     burst_cycles=1,
     ch2_state=0,
     ch2_delay=0,
@@ -194,9 +196,18 @@ def burst_mode(
         Optional threading.Event-like object. If set, the function exits early
         and performs cleanup before returning.
     """
+    if interpulse_delay_sequence is not None:
+        interpulse_delay_sequence = [float(delay_ms) for delay_ms in interpulse_delay_sequence]
+        num_stims = len(interpulse_delay_sequence)
+
     assert interstim_delay > 0, "interstim_delay must be > 0 seconds"
     assert num_stims >= 1, "num_stims must be >= 1"
     assert jitter_rate >= 0, "jitter_rate must be >= 0 seconds"
+    assert jitter_quantize > 0, "jitter_quantize must be > 0 seconds"
+    if interpulse_delay_sequence is not None:
+        assert all(delay_ms > 0 for delay_ms in interpulse_delay_sequence), (
+            "interpulse_delay_sequence values must be > 0 ms."
+        )
     assert jitter_rate <= interstim_delay, (
         f"jitter_rate ({jitter_rate}s) must be <= interstim_delay ({interstim_delay}s) "
         "to avoid negative or invalid sleep intervals when jitter=True."
@@ -311,10 +322,15 @@ def burst_mode(
         ch1.burst.enabled = True
         ch2.burst.enabled = True
 
+        def set_pulse_period_ms(period_ms):
+            pulse_freq = 1000.0 / period_ms
+            ch1.output.frequency = pulse_freq
+            ch2.output.frequency = pulse_freq
+
         ch1.trigger.source = ks.TriggerSource.BUS
         ch2.trigger.source = ks.TriggerSource.BUS
 
-        if rand_freq:
+        if rand_freq and interpulse_delay_sequence is None:
                 random_frequency = random.uniform(
                     rand_freq_lower,
                     rand_freq_upper
@@ -329,7 +345,7 @@ def burst_mode(
 
         print(f"burst cycles = {burst_cycles}")
 
-        if (not jitter) and (burst_cycles == 1):
+        if (not jitter) and (burst_cycles == 1) and interpulse_delay_sequence is None:
             print("burst = num_stims")
             ch1.burst.number_of_cycles = num_stims
             ch2.burst.number_of_cycles = num_stims
@@ -360,9 +376,9 @@ def burst_mode(
             return
 
         # --- trigger ---
-        if jitter or (burst_cycles > 1):
+        if jitter or (burst_cycles > 1) or (interpulse_delay_sequence is not None):
             
-            if burst_cycles != 1 and not rand_freq:
+            if burst_cycles != 1 and not rand_freq and interpulse_delay_sequence is None:
                 if interpulse_delay <= 0:
                     raise ValueError(
                         "interpulse_delay must be > 0 ms when burst_cycles > 1 and rand_freq is False."
@@ -377,7 +393,11 @@ def burst_mode(
                     print("Stop requested during burst loop.")
                     return
                 
-                if rand_freq:
+                if interpulse_delay_sequence is not None:
+                    interpulse_delay = interpulse_delay_sequence[count - 1]
+                    set_pulse_period_ms(interpulse_delay)
+                    print(f"Pulse period for stim {count}: {interpulse_delay} ms")
+                elif rand_freq:
                     random_frequency = random.uniform(
                         rand_freq_lower,
                         rand_freq_upper
@@ -398,6 +418,7 @@ def burst_mode(
                     interstim_delay - jitter_rate,
                     interstim_delay + jitter_rate
                 )
+                rand = round(rand / jitter_quantize) * jitter_quantize
 
                 stopped = _sleep_with_stop(rand, stop_event=stop_event, chunk_s=0.01)
                 if stopped:

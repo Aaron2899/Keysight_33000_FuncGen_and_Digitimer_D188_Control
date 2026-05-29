@@ -6,6 +6,7 @@ import traceback
 import threading
 import os
 import time
+import csv
 
 
 from PySide6.QtWidgets import (
@@ -148,7 +149,7 @@ class ControllerMain(QDialog):
         self.results_viewer_window = None
 
         # Change to false if hardware is not connected to allow app to run without hardware present (e.g. for testing or development)
-        self.hardware_enabled = 0
+        self.hardware_enabled = 1
 
         # Create one persistent annotation editor for the lifetime of the app.
         # Guard construction so the app can still start even if dialog creation fails.
@@ -296,6 +297,7 @@ class ControllerMain(QDialog):
         self.ui.spinBox.setValue(1)
         self.ui.interstim_delay.setValue(1)
         self.ui.widget_25.setEnabled(False)
+        self.ui.jitter_quantize_dropdown.setCurrentIndex(4)
         self.ui.ch2_delay_widget.setEnabled(False)
         self.ui.jitter_off_3.setChecked(True)
         self.ui.radioButton_6.setChecked(False)
@@ -320,6 +322,7 @@ class ControllerMain(QDialog):
         self.ui.groupBox_26.setEnabled(False)  # CH1 Custom Waveform settings hidden by default
         self.ui.groupBox_28.setEnabled(False)  # CH2 Custom Waveform settings hidden by default
         self.ui.rf_settings.setEnabled(False)
+        self.ui.jitter_quantize_widget.setEnabled(False)
         self.ui.rf_off.setChecked(True)
         # endregion
 
@@ -348,6 +351,9 @@ class ControllerMain(QDialog):
         self.ui.pushButton_4.clicked.connect(self.apply_burst_mode_settings)
         self.ui.stop_button.clicked.connect(self.stop_burst_mode)
         self.ui.stop_button.setEnabled(False)
+        self.ui.pulse_delay_csv_browse.clicked.connect(self.browse_pulse_delay_csv)
+        self.ui.pulse_delay_csv_clear.clicked.connect(self.clear_pulse_delay_csv)
+        self.ui.pulse_delay_csv_clear.setEnabled(False)
 
         self.ui.rf_on.toggled.connect(self.enable_rf_freq)
         self.ui.rf_off.toggled.connect(self.enable_rf_freq)
@@ -982,6 +988,106 @@ class ControllerMain(QDialog):
 
     from pathlib import Path
 
+    def _set_pulse_delay_csv_loaded(self, loaded: bool):
+        self.ui.widget_7.setEnabled(not loaded)
+        self.ui.interpulsedelay_widget.setEnabled(not loaded)
+        self.ui.num_stims.setEnabled(not loaded)
+        self.ui.pulse_delay_csv_browse.setEnabled(not loaded)
+        self.ui.pulse_delay_csv_clear.setEnabled(loaded)
+
+    def browse_pulse_delay_csv(self):
+        start_dir = Path.cwd()
+
+        try:
+            path_str, _ = QFileDialog.getOpenFileName(
+                self,
+                "Load Pulse Delay CSV",
+                str(start_dir),
+                "CSV Files (*.csv);;All Files (*)"
+            )
+
+            if not path_str:
+                return
+
+            path = Path(path_str)
+            self.ui.pulse_delay_csv_path.setText(str(path))
+            self._set_pulse_delay_csv_loaded(True)
+            print(f"Selected pulse delay CSV: {path}")
+        except Exception as e:
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Load Error",
+                f"Could not select the pulse delay CSV:\n{e}"
+            )
+
+    def clear_pulse_delay_csv(self):
+        self.ui.pulse_delay_csv_path.clear()
+        self._set_pulse_delay_csv_loaded(False)
+
+    def _read_pulse_delay_csv_values(self, path: Path) -> list[float]:
+        with path.open("r", newline="") as csv_file:
+            raw_lines = csv_file.read().splitlines()
+
+        if not raw_lines:
+            raise ValueError("CSV is empty.")
+
+        values = []
+        for line in raw_lines:
+            if line.strip() == "":
+                raise ValueError("CSV contains a blank row.")
+
+            row = next(csv.reader([line]))
+            if len(row) != 1:
+                raise ValueError("CSV must contain exactly one column.")
+
+            cell = row[0]
+            if cell != cell.strip():
+                raise ValueError("CSV values cannot contain leading or trailing spaces.")
+
+            try:
+                values.append(float(cell))
+            except ValueError as exc:
+                raise ValueError("CSV values must be numeric.") from exc
+
+        return values
+
+    def _review_pulse_delay_csv_values(self, values: list[float]) -> bool:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Review Pulse Delay CSV")
+        dialog.resize(420, 500)
+
+        layout = QtWidgets.QVBoxLayout(dialog)
+
+        total_label = QtWidgets.QLabel(f"Total number of stims: {len(values)}")
+        layout.addWidget(total_label)
+
+        table = QtWidgets.QTableWidget(dialog)
+        table.setColumnCount(1)
+        table.setRowCount(len(values))
+        table.setHorizontalHeaderLabels(["Pulse Delay"])
+        table.horizontalHeader().setStretchLastSection(True)
+        table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+        for row, value in enumerate(values):
+            table.setItem(row, 0, QtWidgets.QTableWidgetItem(str(value)))
+
+        layout.addWidget(table)
+
+        button_row = QtWidgets.QHBoxLayout()
+        button_row.addStretch()
+
+        start_button = QtWidgets.QPushButton("Start", dialog)
+        cancel_button = QtWidgets.QPushButton("Cancel", dialog)
+        start_button.clicked.connect(dialog.accept)
+        cancel_button.clicked.connect(dialog.reject)
+        button_row.addWidget(start_button)
+        button_row.addWidget(cancel_button)
+
+        layout.addLayout(button_row)
+
+        return dialog.exec() == QDialog.Accepted
+
     
     def browse_load_file(self):
 
@@ -1293,6 +1399,7 @@ class ControllerMain(QDialog):
 
         stim_jitter = self.ui.jitter_on_3.isChecked()
         jitter_rate = self.ui.doubleSpinBox_24.value() if stim_jitter else 0
+        jitter_quantize = float(self.ui.jitter_quantize_dropdown.currentText())
 
         pulses_per_stim = self.ui.spinBox.value()
 
@@ -1400,6 +1507,7 @@ class ControllerMain(QDialog):
             f"interpulse_delay={interpulse_period}, \n"
             f"jitter={stim_jitter}, \n"
             f"jitter_rate={jitter_rate}, \n"
+            f"jitter_quantize={jitter_quantize}, \n"
             f"burst_cycles={pulses_per_stim}, \n"
             f"ch2_state={channel_2_state}, \n"
             f"ch2_delay={channel_2_delay}, \n"
@@ -1432,6 +1540,7 @@ class ControllerMain(QDialog):
             interpulse_delay=interpulse_period,
             jitter=stim_jitter,
             jitter_rate=jitter_rate,
+            jitter_quantize=jitter_quantize,
             burst_cycles=pulses_per_stim,
             ch2_state=channel_2_state,
             ch2_delay=channel_2_delay,
@@ -1467,7 +1576,26 @@ class ControllerMain(QDialog):
             print("Burst mode is already running.")
             return
 
+        pulse_delay_values = None
+        pulse_delay_csv_path = self.ui.pulse_delay_csv_path.text().strip()
+        if pulse_delay_csv_path:
+            try:
+                pulse_delay_values = self._read_pulse_delay_csv_values(Path(pulse_delay_csv_path))
+            except Exception:
+                QMessageBox.warning(
+                    self,
+                    "CSV Format Error",
+                    "Error, CSV file format is incorrect. CSV should be 1 column of numerical values with no spaces."
+                )
+                return
+
+            if not self._review_pulse_delay_csv_values(pulse_delay_values):
+                return
+
         burst_kwargs = self._collect_burst_mode_settings()
+        if pulse_delay_values is not None:
+            burst_kwargs["num_stims"] = len(pulse_delay_values)
+            burst_kwargs["interpulse_delay_sequence"] = pulse_delay_values
 
         self.burst_thread = QThread(self)
         self.burst_worker = BurstWorker(burst_kwargs)
@@ -1566,10 +1694,9 @@ class ControllerMain(QDialog):
             self.ui.label_90.setText("Milliseconds")
 
     def enable_jitter_1(self, text: str):
-        if self.ui.jitter_on_3.isChecked():
-            self.ui.widget_25.setEnabled(True)
-        else:
-            self.ui.widget_25.setEnabled(False)
+        jitter_enabled = self.ui.jitter_on_3.isChecked()
+        self.ui.widget_25.setEnabled(jitter_enabled)
+        self.ui.jitter_quantize_widget.setEnabled(jitter_enabled)
 
     def enable_channel_2(self, text: str):
         if self.ui.radioButton_5.isChecked():
