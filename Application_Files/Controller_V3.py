@@ -27,6 +27,7 @@ from Trial_Program import (
                             create_log,
                             prompt_save_after_trial,
                             build_trial_stateful_kwargs,
+                            record_intensity_change,
                             AnnotationEditorDialog,
                             PatientBodyLogDialog,
                             TrialStartReviewDialog,
@@ -1983,7 +1984,38 @@ class ControllerMain(QDialog):
             print(f"Failed to build trial hardware kwargs during state change: {e}")
             return
 
-        self.request_trial_apply(kwargs)
+        state_on = bool(kwargs.get("state", 0))
+        last_state_on = getattr(self, "_last_logged_stim_output_on", None)
+
+        applied = self.request_trial_apply(kwargs)
+        if not applied:
+            return
+
+        current_intensity = float(getattr(self, "current_intensity", 0.0) or 0.0)
+
+        if last_state_on is None:
+            self._last_logged_stim_output_on = state_on
+            return
+
+        if last_state_on != state_on:
+            if state_on:
+                previous_intensity = 0.0
+                new_intensity = current_intensity
+                direction = "stim_on"
+            else:
+                previous_intensity = current_intensity
+                new_intensity = 0.0
+                direction = "stim_off"
+
+            record_intensity_change(
+                self,
+                previous_intensity=previous_intensity,
+                new_intensity=new_intensity,
+                increment=abs(new_intensity - previous_intensity),
+                direction=direction,
+            )
+
+        self._last_logged_stim_output_on = state_on
 
     
     def set_trial_controls_enabled(self, enabled: bool):
